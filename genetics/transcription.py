@@ -1,4 +1,4 @@
-amino_acids = [
+AMINO_ACIDS = [
     ("Alanine", "Ala", 'A'),
     ("Arginine", "Arg", 'R'),
     ("Asparagine", "Asn", 'N'),
@@ -21,7 +21,7 @@ amino_acids = [
     ("Valine", "Val", 'V')
 ]
 
-inverse_codon = {
+INVERSE_CODON = {
     ("Ala", 'A') : (("GCU", "GCC", "GCA", "GCG")),
     ("Arg", 'R') : (("CGU", "CGC", "CGA", "CGG"), ("AGA", "AGG")),
     ("Asn", 'N') : (("AAU", "AAC")),
@@ -48,7 +48,7 @@ inverse_codon = {
     ("STOP") : (("UAA", "UGA", "UAG"))
 }
 
-codon = {
+CODON = {
     "UUU" : ("Phe", 'F'),
     "UUC" : ("Phe", 'F'),
     "UUA" : ("Leu", 'L'),
@@ -115,7 +115,7 @@ codon = {
     "GGG" : ("Gly", 'G')
 }
 
-start_codon = {
+TERMINAL_CODON = {
     "UUG" : ("START"),
     "AUG" : ("START"),
     "GUG" : ("START"),
@@ -242,4 +242,7 @@ def reverse_transcribe(sequence, is_complement=True, reverse=False):
         dna = dna[::-1]
 
     return dna
+
+def missense(sequence, reference, codons=CODON):
+    pass
 
