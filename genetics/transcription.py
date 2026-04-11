@@ -243,6 +243,70 @@ def reverse_transcribe(sequence, is_complement=True, reverse=False):
 
     return dna
 
-def missense(sequence, reference, codons=CODON):
-    pass
+def missense(sequence, reference, codons, assume_dna=True, frame=0):
+    """
+    Identify missense mutations between a sequence and a reference.
+
+    Parameters:
+        sequence (list of str): Mutated sequence
+        reference (list of str): Reference (wild-type) sequence
+        codons (dict): e.g. {"UUU": ("Phe", "F"), ...}
+        assume_dna (bool): If True, inputs are DNA; else RNA
+        frame (int): Reading frame offset (0, 1, or 2)
+
+    Returns:
+        list of dict: Each dict describes a missense mutation
+    """
+
+    if len(sequence) != len(reference):
+        raise ValueError("Sequence and reference must be same length")
+
+    # Step 1: Convert to RNA if needed
+    if assume_dna:
+        seq_rna = transcribe(sequence, is_complement=False)
+        ref_rna = transcribe(reference, is_complement=False)
+    else:
+        seq_rna = sequence[:]
+        ref_rna = reference[:]
+
+    results = []
+
+    # Step 2: Iterate through codons
+    for i in range(frame, len(seq_rna) - 2, 3):
+        codon_seq = ''.join(seq_rna[i:i+3])
+        codon_ref = ''.join(ref_rna[i:i+3])
+
+        # Skip incomplete codons
+        if len(codon_seq) < 3 or len(codon_ref) < 3:
+            continue
+
+        # Skip identical codons
+        if codon_seq == codon_ref:
+            continue
+
+        aa_seq = codons.get(codon_seq)
+        aa_ref = codons.get(codon_ref)
+
+        # Skip unknown codons
+        if aa_seq is None or aa_ref is None:
+            continue
+
+        # Extract amino acid symbols
+        aa_seq_name, aa_seq_symbol = aa_seq
+        aa_ref_name, aa_ref_symbol = aa_ref
+
+        # Missense condition: amino acids differ
+        if aa_seq_symbol != aa_ref_symbol:
+            results.append({
+                "position": i // 3,
+                "codon_index": i,
+                "ref_codon": codon_ref,
+                "mut_codon": codon_seq,
+                "ref_aa": aa_ref_symbol,
+                "mut_aa": aa_seq_symbol,
+                "ref_name": aa_ref_name,
+                "mut_name": aa_seq_name
+            })
+
+    return results
 
